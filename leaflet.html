@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<style>
+    #box {
+        padding: 5px;
+        width: 200px;
+        z-index: 10;
+        position: relative;
+    }
+
+    #box form {
+        background: #006699;
+        padding: 5px;
+        display: none;
+        position: absolute;
+        top: 27px;
+    }
+
+    #button {
+        width: 75px;
+        background: #006699;
+        color: #fff;
+        padding: 3px 10px;
+        border: 1px solid #006699;
+        margin-bottom: 15px;
+        cursor: pointer;
+    }
+
+    input[type="submit"] {
+        background: none;
+        color: #fff;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    #main {
+        position: absolute;
+        width: 1450px;
+        height: 940px;
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    .d1 {
+        width: 500px;
+        height: 500px;
+        border: 1px solid red;
+        float: right;
+    }
+
+    .d2 {
+        width: 500px;
+        height: 500px;
+        border: 1px solid blue;
+        float: right;
+    }
+</style>
+
+<head>
+    <title>Leaflet sample</title>
+    <script data-require="angular.js@1.4.x" src="https://code.angularjs.org/1.4.9/angular.js" data-semver="1.4.9">
+    </script>
+    
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+
+</head>
+
+<body ng-app="myapp">
+    <div style="width: 100%;" ng-controller="mytable">
+        <div id="box" style="width: 50%; height: 600px; float: left; background: green;">
+            <!-- <button onclick="myFunction()">ADD USER</button> -->
+            <span id="button">ADD USER</span>
+            <form action="" id="form">
+                <p><input type="text" placeholder="username" id="user" /></p>
+                <p><input type="submit" value="Submit" ng-click="adduser()" /></p>
+            </form>
+            <div>
+                <table class="table table-striped" CELLPADDING="2" CELLSPACING="2" WIDTH="300" border=2>
+                   
+                    <tr ng-repeat="x in record track by $index">
+                        <td style="text-align:center " size=8 ng-hide=side><input type="button" value={{x.username}} ng-click="edit($index)" ng-show="(($index != currentindex)||($index == currentvalue))" class="btn btn-primary" ng-disabled=value>
+                            <input type="button" value="DELETE" ng-click="delete($index)" class="btn btn-danger">
+                            </td>
+        
+                    </tr>
+        
+                </table>
+            </div>
+
+        </div>
+        
+        <div id="map" style="margin-left: 50%; height: 600px; background: blue; ">
+        </div>
+    </div>
+    <!-- <div id=main> <div class="d1">hello</div>
+       <div id = "map" class="d2"></div>
+       
+    </div> -->
+
+    <script>
+     var app = angular.module("myapp", []);
+     app.controller('mytable',function($scope)
+     {
+        var map = L.map('map').setView([17.385044, 78.486671 ], 8);
+        mapLink = 
+            '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+        L.tileLayer(
+            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; ' + mapLink + ' Contributors',
+            maxZoom: 18,
+            }).addTo(map);
+            var items = JSON.parse(localStorage.getItem('details'));
+            $scope.record= JSON.parse(localStorage.getItem('details'));
+            console.log($scope.record,"$scope.record");
+            for (var i = 0; i < items.length; i++) {
+    marker = new L.marker([items[i].address.lng, items[i].address.lat])
+        .bindPopup(items[i].username).openPopup()
+        .addTo(map);
+}
+           
+		
+
+
+       $scope.adduser= function(event) {
+
+            console.log("adduser");
+            if (localStorage.getItem('id') == undefined || localStorage.getItem('id') == null) {
+                var arr = [];
+
+                console.log("no local");
+                var i = 1;
+                var username = document.getElementById('user').value;
+                var address = getaddress({ 'lat': 78.486671, 'lng': 17.385044 }, 1000);
+                var details = {
+                    id: i,
+                    username: username,
+                    address: {
+                        lat: address.lat,
+                        lng: address.lng
+                    }
+                };
+                arr.push(details);
+                console.log(arr, "arr");
+
+                localStorage.setItem("details", JSON.stringify(arr));
+                localStorage.setItem('id', i);
+                console.log(details, "details");
+                var items = JSON.parse(localStorage.getItem('details'));
+                $scope.record= JSON.parse(localStorage.getItem('details'));
+
+for (var i = 0; i < items.length; i++) {
+    marker = new L.marker([items[i].address.lng, items[i].address.lat])
+    .addTo(map).bindPopup(items[i].username).
+                openPopup();
+}
+       
+
+            }
+            else {
+                console.log("vvvvv");
+                var d = parseInt(localStorage.getItem('id'));
+                var i = d + 1;
+                var username = document.getElementById('user').value;
+                var address = getaddress({ 'lat': 78.486671, 'lng': 17.385044 }, 10000);
+                var details = {
+                    id: i,
+                    username: username,
+                    address: {
+                        lat: address.lat,
+                        lng: address.lng
+                    }
+                };
+                console.log(details, "details");
+                var arr = JSON.parse(localStorage.getItem('details'));
+                arr.push(details);
+                console.log(arr, "arr");
+                localStorage.setItem("details", JSON.stringify(arr));
+                localStorage.setItem('id', i);
+               $scope.record= JSON.parse(localStorage.getItem('details'));
+                var items = JSON.parse(localStorage.getItem('details'));
+
+		for (var i = 0; i < items.length; i++) {
+			marker = new L.marker([items[i].address.lng, items[i].address.lat])
+				
+				.addTo(map).bindPopup(items[i].username).
+                openPopup();
+		}
+               
+               
+            }
+        }
+        function getaddress(center, radius) {
+            console.log(center, "center");
+            console.log(radius, "radius");
+
+            let x0 = center.lng;
+            let y0 = center.lat;
+            let rd = radius / 111300;
+            let u = Math.random();
+            let v = Math.random();
+            let w = rd * Math.sqrt(u);
+            let t = 2 * Math.PI * v;
+            let x = w * Math.cos(t);
+            let y = w * Math.sin(t);
+            let xp = x / Math.cos(y0);
+            return { 'lat': y + y0, 'lng': xp + x0 }
+
+        }
+        /*  function myFunction() {
+             var x = document.getElementById("myDIV");
+             if (x.style.display === "none") {
+                 x.style.display = "block";
+             } else {
+                 x.style.display = "none";
+             }
+         } */
+        $("#button").click(function () {
+            console.log("hello");
+            $("#box form").toggle("slow");
+            return false;
+        });
+
+        $scope.edit=function(index)
+        {
+            var items = JSON.parse(localStorage.getItem('details'));
+            var find=items[index];
+            var arr=[];
+            arr.push(find);
+            console.log(arr,"find");
+            
+            
+                map.removeLayer(marker);
+
+        
+
+       for(var i=0;i<arr.length;i++)
+            {
+                
+                console.log("jjjjj");
+                marker = new L.marker([arr[i].address.lng, arr[i].address.lat])
+				.addTo(map).bindPopup(arr[i].username).
+                openPopup();
+            }
+			
+		
+        }
+
+        $scope.delete=function(index)
+        {
+            console.log(index,"index");
+            var item = JSON.parse(localStorage.getItem('details'));
+            console.log("items before deletion",item);
+           item.splice(index,1);
+           localStorage.setItem("details", JSON.stringify(item));
+           var itemss=JSON.parse(localStorage.getItem('details'));
+           console.log("items after deletion",itemss);
+           console.log(itemss.length,"length");
+
+           $scope.record=JSON.parse(localStorage.getItem('details'));
+
+           
+              map.removeLayer(marker);
+        
+            for(var i=0;i<itemss.length;i++)
+            {
+               
+                console.log("jjjjj");
+                marker = new L.marker([itemss[i].address.lng, itemss[i].address.lat])
+				.addTo(map).bindPopup(itemss[i].username).
+                openPopup();
+            } 
+            location.reload();
+        }
+     })
+
+         
+    </script>
+</body>
+
+</html>
